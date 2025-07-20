@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Server Builder | Coinbound</title>
+    <meta name="description" content="AI-powered Discord server builder tool by Coinbound. Create themed Discord servers instantly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-text">coinbound</span>
+                </div>
+                <a href="https://calendly.com/coinbound/discovery-call" class="cta-button" target="_blank">BOOK A CALL</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <div class="service-header">
+                <span class="service-tag">DISCORD AUTOMATION TOOLS</span>
+                <h1 class="service-title">Choose Your Discord Tool</h1>
+            </div>
+
+            <div class="tool-selector">
+                <button class="tool-option" data-tool="guide">
+                    Setup Guide
+                </button>
+                <button class="tool-option active" data-tool="builder">
+                    Server Builder
+                </button>
+            </div>
+
+            <div class="tool-content">
+                <!-- Server Builder Panel -->
+                <div class="tool-panel active" id="builder-panel">
+                    <h2 class="tool-heading">Discord Server Builder</h2>
+                    <p class="tool-description">Add our AI-powered bot to automatically create themed Discord server structures with intelligent automation</p>
+                    
+                    <div class="info-box">
+                        <p><strong>Important:</strong> Make sure you have "Manage Server" permissions and the bot has "Manage Channels" and "Manage Roles" permissions for the builder to work effectively.</p>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Bot Commands</label>
+                        <div class="command-list">
+                            <div class="command-item">
+                                <code>/build [detailed theme]</code>
+                                <span>Create comprehensive server structures with up to 30 channels. Be specific!</span>
+                            </div>
+                            <div class="command-item">
+                                <code>/nuke</code>
+                                <span>Reset server to basic configuration (Admin only)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Example Themes (Be Detailed!)</label>
+                        <div class="examples-list">
+                            <div class="example-item">"gaming community with tournaments and team coordination"</div>
+                            <div class="example-item">"crypto trading server with technical analysis and news"</div>
+                            <div class="example-item">"art collective with showcase galleries and critique sessions"</div>
+                            <div class="example-item">"music production studio with collaboration rooms"</div>
+                            <div class="example-item">"study group for computer science with project spaces"</div>
+                            <div class="example-item">"fitness community with workout tracking and motivation"</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Required Permissions</label>
+                            <div class="permission-grid">
+                                <div class="permission-item">Manage Channels</div>
+                                <div class="permission-item">Manage Roles</div>
+                                <div class="permission-item">View Channels</div>
+                                <div class="permission-item">Send Messages</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="action-button" onclick="window.open('https://discord.com/oauth2/authorize?client_id=1396309838681866361&permissions=2415922192&integration_type=0&scope=bot+applications.commands', '_blank')">
+                        Add Bot to Discord
+                    </button>
+                </div>
+
+                <!-- Setup Guide Panel -->
+                <div class="tool-panel" id="guide-panel">
+                    <h2 class="tool-heading">Setup Guide</h2>
+                    <p class="tool-description">Follow these steps to get the Discord Server Builder working in your server</p>
+                    
+                    <div class="info-box">
+                        <p><strong>Important:</strong> You need "Manage Server" permissions in your Discord server to add bots and grant permissions.</p>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Step-by-Step Instructions</label>
+                        <div class="steps-container">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Add the Bot</h4>
+                                    <p>Click "Add Bot to Discord" and select your server</p>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Grant Permissions</h4>
+                                    <p>Ensure the bot has "Manage Channels" and "Manage Roles" permissions</p>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Use Commands</h4>
+                                    <p>Type <code>/build gaming community</code> to create a gaming-themed server</p>
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4>Reset Server</h4>
+                                    <p>Use <code>/nuke</code> to clear everything and start fresh (Admin only)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="action-button" onclick="document.querySelector('[data-tool=&quot;builder&quot;]').click()">
+                        Add Bot to Discord
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-branding">
+                    <p class="footer-powered">Powered by <span class="footer-logo">coinbound</span></p>
+                    <p class="footer-tagline">Top Web3 & Crypto Marketing Agency</p>
+                    <p class="footer-description">Professional Discord automation tools for crypto and Web3 marketing teams</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/main.js"></script>
+</body>
+</html>
