@@ -2,8 +2,14 @@ const axios = require('axios');
 
 class OpenRouterClient {
     constructor(apiKey) {
-        this.apiKey = apiKey;
+        this.apiKey = apiKey || process.env.OPENROUTER_API_KEY;
         this.baseURL = 'https://openrouter.ai/api/v1';
+        
+        if (!this.apiKey) {
+            console.error('❌ CRITICAL: No OpenRouter API key found!');
+            console.error('❌ Set OPENROUTER_API_KEY environment variable');
+            console.error('❌ Get key from: https://openrouter.ai/keys');
+        }
     }
 
     async generateServerStructure(theme) {
