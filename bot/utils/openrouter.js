@@ -7,46 +7,34 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const prompt = `You are a Discord server architect. Create a HIGHLY SPECIFIC Discord server structure EXCLUSIVELY for: "${theme}".
+        const prompt = `Create a Discord server structure for the theme: "${theme}".
 
-DO NOT create a generic server. Every category, channel, and role must be 100% tailored to this exact theme.
-
-Examples of theme-specific customization:
-- For "SoundCloud rappers": Categories like "🎤 Studio Sessions", "💰 Business & Deals", "🔥 Beat Battles"
-- For "PS4 gaming": Categories like "🎮 Game Lobbies", "🏆 Tournament Central", "🎯 LFG by Game"
-- For "anime fans": Categories like "📺 Current Season", "💬 Waifu Wars", "🎨 Fan Art Gallery"
-
-Return ONLY a valid JSON object:
+Return a JSON object with categories, channels, and roles:
 {
   "categories": [
     {
-      "name": "theme-specific-category",
+      "name": "category-name",
       "channels": [
-        {"name": "🎯theme-specific-channel", "type": "text"},
-        {"name": "🎤theme-specific-voice", "type": "voice"}
+        {"name": "🎯channel-name", "type": "text"},
+        {"name": "🎤voice-channel", "type": "voice"}
       ]
     }
   ],
   "roles": [
     {
-      "name": "Theme Specific Role",
+      "name": "Role Name",
       "color": "#FF5733",
-      "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-      "description": "Role purpose for this theme"
+      "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"]
     }
   ]
 }
 
-CRITICAL REQUIREMENTS:
-- MAXIMUM 20 channels total
-- Every single category name must reflect the specific theme "${theme}"
-- Every single channel name must be theme-specific (no generic "general-chat")
-- Use relevant emojis that match the theme exactly
-- Role names must be theme-appropriate (no generic "Member", "Moderator")
-- Discord-friendly names (lowercase, hyphens for spaces)
+Requirements:
+- Maximum 20 channels total
+- Maximum 5 voice channels
+- Use emojis in channel names
+- Discord-friendly names (lowercase, hyphens)
 - Valid permissions: MANAGE_CHANNELS, MANAGE_ROLES, MANAGE_MESSAGES, KICK_MEMBERS, BAN_MEMBERS, SEND_MESSAGES, VIEW_CHANNEL, CONNECT, SPEAK
-
-Think about what someone passionate about "${theme}" would want in their perfect Discord server. Make it 100% theme-specific!
 
 Return only the JSON object.`;
 
@@ -116,78 +104,47 @@ Return only the JSON object.`;
     }
 
     getFallbackStructure(theme) {
-        console.log('🚨 Using fallback structure - AI call failed for theme:', theme);
-        
-        const themeSlug = theme.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
-        const themeLower = theme.toLowerCase();
-        
-        // Try to make fallback somewhat theme-aware
-        let emoji = '🎯';
-        let rolePrefix = '';
-        
-        if (themeLower.includes('gaming') || themeLower.includes('ps4') || themeLower.includes('xbox') || themeLower.includes('game')) {
-            emoji = '🎮';
-            rolePrefix = 'Gaming';
-        } else if (themeLower.includes('music') || themeLower.includes('rapper') || themeLower.includes('soundcloud') || themeLower.includes('beat')) {
-            emoji = '🎵';
-            rolePrefix = 'Music';
-        } else if (themeLower.includes('anime') || themeLower.includes('manga') || themeLower.includes('otaku')) {
-            emoji = '📺';
-            rolePrefix = 'Anime';
-        } else if (themeLower.includes('art') || themeLower.includes('design') || themeLower.includes('creative')) {
-            emoji = '🎨';
-            rolePrefix = 'Creative';
-        } else if (themeLower.includes('crypto') || themeLower.includes('trading') || themeLower.includes('nft')) {
-            emoji = '💰';
-            rolePrefix = 'Trader';
-        }
-        
         return {
             "categories": [
                 {
-                    "name": "📢-info-center",
+                    "name": "📢-welcome",
                     "channels": [
                         { "name": "👋welcome", "type": "text" },
-                        { "name": "📜server-rules", "type": "text" },
+                        { "name": "📜rules", "type": "text" },
                         { "name": "📢announcements", "type": "text" }
                     ]
                 },
                 {
-                    "name": `${emoji}-${themeSlug}-main`,
+                    "name": "💬-general",
                     "channels": [
-                        { "name": `${emoji}${themeSlug}-chat`, "type": "text" },
-                        { "name": `🔥${themeSlug}-discussions`, "type": "text" },
-                        { "name": `🎯${themeSlug}-showcase`, "type": "text" },
-                        { "name": `❓${themeSlug}-help`, "type": "text" }
+                        { "name": "💬general-chat", "type": "text" },
+                        { "name": "🎯discussion", "type": "text" },
+                        { "name": "🎨showcase", "type": "text" }
                     ]
                 },
                 {
-                    "name": `${emoji}-${themeSlug}-voice`,
+                    "name": "🎤-voice",
                     "channels": [
-                        { "name": `${emoji}${themeSlug}-hangout`, "type": "voice" },
-                        { "name": `🎤${themeSlug}-discussion`, "type": "voice" },
-                        { "name": `💬casual-voice`, "type": "voice" }
+                        { "name": "🎤general-voice", "type": "voice" },
+                        { "name": "🎵music-lounge", "type": "voice" }
                     ]
                 }
             ],
             "roles": [
                 {
-                    "name": `${emoji} ${rolePrefix} Expert`,
+                    "name": "Admin",
                     "color": "#E74C3C",
-                    "permissions": ["MANAGE_MESSAGES", "KICK_MEMBERS"],
-                    "description": `Expert in ${theme}`
+                    "permissions": ["MANAGE_MESSAGES", "KICK_MEMBERS"]
                 },
                 {
-                    "name": `🌟 ${rolePrefix} Enthusiast`,
-                    "color": "#9B59B6",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": `Active ${theme} enthusiast`
+                    "name": "Moderator",
+                    "color": "#3498DB",
+                    "permissions": ["MANAGE_MESSAGES"]
                 },
                 {
-                    "name": `${emoji} ${rolePrefix} Member`,
+                    "name": "Member",
                     "color": "#95A5A6",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": `Member interested in ${theme}`
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"]
                 }
             ]
         };
