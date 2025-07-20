@@ -13,13 +13,6 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const models = [
-            "meta-llama/llama-3.1-405b-instruct",
-            "anthropic/claude-3.5-sonnet", 
-            "openai/gpt-4o",
-            "google/gemini-pro-1.5"
-        ];
-
         const prompt = `Design a creative Discord server for: "${theme}"
 
 Create categories, channels, and roles that perfectly match this theme. Be imaginative and specific to the theme.
@@ -44,99 +37,107 @@ JSON format:
   ]
 }
 
-Limits: 20 channels max, 5 voice max. Use emojis. Make it themed and unique!`;
+Limits: 20 channels max, 1-3 voice channels. Use emojis. Make it themed and unique!`;
 
-        for (const model of models) {
-            try {
-                console.log(`🤖 Trying ${model} for theme:`, theme);
-                
-                const response = await axios.post(`${this.baseURL}/chat/completions`, {
-                    model: model,
-                    messages: [{ role: "user", content: prompt }],
-                    temperature: 0.85,
-                    max_tokens: 3000
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${this.apiKey}`,
-                        'Content-Type': 'application/json',
-                        'HTTP-Referer': 'https://coinbound.io',
-                        'X-Title': 'Discord Server Builder Bot'
-                    }
-                });
+        try {
+            console.log(`🤖 Generating structure for theme:`, theme);
+            
+            const response = await axios.post(`${this.baseURL}/chat/completions`, {
+                model: "meta-llama/llama-3.1-405b-instruct",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.85,
+                max_tokens: 2500
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': 'https://coinbound.io',
+                    'X-Title': 'Discord Server Builder Bot'
+                }
+            });
 
-                if (!response.data?.choices?.[0]?.message?.content) {
-                    throw new Error('Invalid API response structure');
-                }
+            if (!response.data?.choices?.[0]?.message?.content) {
+                throw new Error('Invalid API response structure');
+            }
 
-                const content = response.data.choices[0].message.content.trim();
-                console.log(`✅ ${model} responded with ${content.length} chars`);
-                
-                // Clean and parse JSON
-                let jsonStr = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-                const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    jsonStr = jsonMatch[0];
+            const content = response.data.choices[0].message.content.trim();
+            console.log(`✅ AI responded with ${content.length} chars`);
+            
+            // Clean and parse JSON
+            let jsonStr = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+            const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                jsonStr = jsonMatch[0];
+            }
+            
+            const parsedStructure = JSON.parse(jsonStr);
+            
+            // Validate structure
+            if (!parsedStructure.categories || !Array.isArray(parsedStructure.categories) ||
+                !parsedStructure.roles || !Array.isArray(parsedStructure.roles)) {
+                throw new Error('Invalid structure format');
+            }
+            
+            // Enforce limits
+            let totalChannels = 0;
+            let voiceChannels = 0;
+            
+            for (const category of parsedStructure.categories) {
+                if (category.channels) {
+                    totalChannels += category.channels.length;
+                    voiceChannels += category.channels.filter(ch => ch.type === 'voice').length;
                 }
-                
-                const parsedStructure = JSON.parse(jsonStr);
-                
-                // Validate structure
-                if (!parsedStructure.categories || !Array.isArray(parsedStructure.categories) ||
-                    !parsedStructure.roles || !Array.isArray(parsedStructure.roles)) {
-                    throw new Error('Invalid structure format');
-                }
-                
-                // Enforce limits
-                let totalChannels = 0;
-                let voiceChannels = 0;
-                
+            }
+            
+            if (totalChannels > 20) {
+                // Trim channels to fit limit
+                let channelsToRemove = totalChannels - 20;
                 for (const category of parsedStructure.categories) {
-                    if (category.channels) {
-                        totalChannels += category.channels.length;
-                        voiceChannels += category.channels.filter(ch => ch.type === 'voice').length;
-                    }
+                    if (channelsToRemove <= 0) break;
+                    const toRemove = Math.min(channelsToRemove, category.channels.length - 1);
+                    category.channels.splice(-toRemove);
+                    channelsToRemove -= toRemove;
                 }
-                
-                if (totalChannels > 20) {
-                    // Trim channels to fit limit
-                    let channelsToRemove = totalChannels - 20;
-                    for (const category of parsedStructure.categories) {
-                        if (channelsToRemove <= 0) break;
-                        const toRemove = Math.min(channelsToRemove, category.channels.length - 1);
-                        category.channels.splice(-toRemove);
-                        channelsToRemove -= toRemove;
-                    }
-                }
-                
-                if (voiceChannels > 5) {
-                    // Trim voice channels
-                    let voiceToRemove = voiceChannels - 5;
-                    for (const category of parsedStructure.categories) {
-                        if (voiceToRemove <= 0) break;
-                        for (let i = category.channels.length - 1; i >= 0 && voiceToRemove > 0; i--) {
-                            if (category.channels[i].type === 'voice') {
-                                category.channels.splice(i, 1);
-                                voiceToRemove--;
-                            }
+            }
+            
+            // Random voice channels 1-3
+            const targetVoiceChannels = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3
+            
+            if (voiceChannels > targetVoiceChannels) {
+                // Trim excess voice channels
+                let voiceToRemove = voiceChannels - targetVoiceChannels;
+                for (const category of parsedStructure.categories) {
+                    if (voiceToRemove <= 0) break;
+                    for (let i = category.channels.length - 1; i >= 0 && voiceToRemove > 0; i--) {
+                        if (category.channels[i].type === 'voice') {
+                            category.channels.splice(i, 1);
+                            voiceToRemove--;
                         }
                     }
                 }
-                
-                console.log(`🎯 ${model} generated valid structure:`, 
-                    `${parsedStructure.categories.length} categories,`, 
-                    `${parsedStructure.categories.reduce((acc, cat) => acc + cat.channels.length, 0)} channels,`,
-                    `${parsedStructure.roles.length} roles`);
-                
-                return parsedStructure;
-                
-            } catch (error) {
-                console.error(`❌ ${model} failed:`, error.message);
-                continue;
+            } else if (voiceChannels < 1) {
+                // Ensure at least 1 voice channel
+                const lastCategory = parsedStructure.categories[parsedStructure.categories.length - 1];
+                lastCategory.channels.push({ "name": "🎤general-voice", "type": "voice" });
             }
+            
+            const finalChannels = parsedStructure.categories.reduce((acc, cat) => acc + cat.channels.length, 0);
+            const finalVoice = parsedStructure.categories.reduce((acc, cat) => 
+                acc + cat.channels.filter(ch => ch.type === 'voice').length, 0);
+            
+            console.log(`🎯 Generated structure:`, 
+                `${parsedStructure.categories.length} categories,`, 
+                `${finalChannels} channels,`,
+                `${finalVoice} voice,`,
+                `${parsedStructure.roles.length} roles`);
+            
+            return parsedStructure;
+            
+        } catch (error) {
+            console.error(`❌ AI generation failed:`, error.message);
+            console.log('⚠️ Using fallback structure');
+            return this.getFallbackStructure(theme);
         }
-        
-        console.log('⚠️ All models failed, using fallback');
-        return this.getFallbackStructure(theme);
     }
 
     getFallbackStructure(theme) {
