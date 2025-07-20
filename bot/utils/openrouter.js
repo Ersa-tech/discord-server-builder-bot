@@ -7,7 +7,9 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const prompt = `Create an EPIC and COMPREHENSIVE Discord server structure for the theme: "${theme}".
+        const prompt = `Create an amazing Discord server structure perfectly tailored for the theme: "${theme}".
+
+You have complete creative freedom! Design what YOU think would be the most engaging and comprehensive server for this specific theme.
 
 Return ONLY a valid JSON object:
 {
@@ -30,15 +32,16 @@ Return ONLY a valid JSON object:
   ]
 }
 
-Requirements:
-- 6-12 categories (make it BIG and comprehensive!)
-- 40-80 channels total (mix of text and voice) - GO BIG!
-- 8-15 roles with detailed hierarchy and appropriate permissions
+Guidelines (use your best judgment):
+- Create as many categories and channels as YOU think makes sense for this theme
 - Use relevant emojis at the start of channel names (🎵, 🎤, 📢, 💬, 🎯, 🔥, ⭐, 🎨, 📱, 🎮, etc.)
 - Discord-friendly names (lowercase, hyphens for spaces)
-- Create specialized channels for the theme
+- Create specialized channels that are unique and perfect for this specific theme
+- Design a role hierarchy that makes sense for the community
 - Valid permissions: MANAGE_CHANNELS, MANAGE_ROLES, MANAGE_MESSAGES, KICK_MEMBERS, BAN_MEMBERS, SEND_MESSAGES, VIEW_CHANNEL, CONNECT, SPEAK
-- Make it feel like a thriving, active community space
+- Make it feel like the ultimate destination for this theme's community
+
+Be creative! Design YOUR vision of the perfect server for this theme.
 
 Return only the JSON object.`;
 
