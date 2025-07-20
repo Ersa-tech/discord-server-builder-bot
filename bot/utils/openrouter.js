@@ -44,7 +44,7 @@ JSON format:
   ]
 }
 
-Limits: 20 channels max, 1-3 voice channels. Use emojis. Make it themed and unique!`;
+Create 5-8 themed roles with different colors and relevant permissions. Limits: 20 channels max, 1-3 voice channels. Use emojis and make it unique!`;
 
             // Step 2: Generate server structure using enhanced prompt
             
