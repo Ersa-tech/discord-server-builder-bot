@@ -7,42 +7,46 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const prompt = `Create an amazing Discord server structure perfectly tailored for the theme: "${theme}".
+        const prompt = `You are a Discord server architect. Create a HIGHLY SPECIFIC Discord server structure EXCLUSIVELY for: "${theme}".
 
-You have complete creative freedom! Design what YOU think would be the most engaging and comprehensive server for this specific theme.
+DO NOT create a generic server. Every category, channel, and role must be 100% tailored to this exact theme.
+
+Examples of theme-specific customization:
+- For "SoundCloud rappers": Categories like "🎤 Studio Sessions", "💰 Business & Deals", "🔥 Beat Battles"
+- For "PS4 gaming": Categories like "🎮 Game Lobbies", "🏆 Tournament Central", "🎯 LFG by Game"
+- For "anime fans": Categories like "📺 Current Season", "💬 Waifu Wars", "🎨 Fan Art Gallery"
 
 Return ONLY a valid JSON object:
 {
   "categories": [
     {
-      "name": "category-name",
+      "name": "theme-specific-category",
       "channels": [
-        {"name": "🎯channel-name", "type": "text"},
-        {"name": "🎤voice-channel", "type": "voice"}
+        {"name": "🎯theme-specific-channel", "type": "text"},
+        {"name": "🎤theme-specific-voice", "type": "voice"}
       ]
     }
   ],
   "roles": [
     {
-      "name": "Role Name",
+      "name": "Theme Specific Role",
       "color": "#FF5733",
       "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-      "description": "Role purpose"
+      "description": "Role purpose for this theme"
     }
   ]
 }
 
-Guidelines (use your best judgment):
-- Create a MAXIMUM of 20 channels total (across all categories)
-- Use relevant emojis at the start of channel names (🎵, 🎤, 📢, 💬, 🎯, 🔥, ⭐, 🎨, 📱, 🎮, etc.)
+CRITICAL REQUIREMENTS:
+- MAXIMUM 20 channels total
+- Every single category name must reflect the specific theme "${theme}"
+- Every single channel name must be theme-specific (no generic "general-chat")
+- Use relevant emojis that match the theme exactly
+- Role names must be theme-appropriate (no generic "Member", "Moderator")
 - Discord-friendly names (lowercase, hyphens for spaces)
-- Create specialized channels that are unique and perfect for this specific theme
-- Design a role hierarchy that makes sense for the community
 - Valid permissions: MANAGE_CHANNELS, MANAGE_ROLES, MANAGE_MESSAGES, KICK_MEMBERS, BAN_MEMBERS, SEND_MESSAGES, VIEW_CHANNEL, CONNECT, SPEAK
-- Make it feel like the ultimate destination for this theme's community
-- Focus on quality over quantity - make each channel purposeful and engaging
 
-Be creative! Design YOUR vision of the perfect server for this theme (max 20 channels).
+Think about what someone passionate about "${theme}" would want in their perfect Discord server. Make it 100% theme-specific!
 
 Return only the JSON object.`;
 
@@ -112,161 +116,78 @@ Return only the JSON object.`;
     }
 
     getFallbackStructure(theme) {
+        console.log('🚨 Using fallback structure - AI call failed for theme:', theme);
+        
         const themeSlug = theme.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
+        const themeLower = theme.toLowerCase();
+        
+        // Try to make fallback somewhat theme-aware
+        let emoji = '🎯';
+        let rolePrefix = '';
+        
+        if (themeLower.includes('gaming') || themeLower.includes('ps4') || themeLower.includes('xbox') || themeLower.includes('game')) {
+            emoji = '🎮';
+            rolePrefix = 'Gaming';
+        } else if (themeLower.includes('music') || themeLower.includes('rapper') || themeLower.includes('soundcloud') || themeLower.includes('beat')) {
+            emoji = '🎵';
+            rolePrefix = 'Music';
+        } else if (themeLower.includes('anime') || themeLower.includes('manga') || themeLower.includes('otaku')) {
+            emoji = '📺';
+            rolePrefix = 'Anime';
+        } else if (themeLower.includes('art') || themeLower.includes('design') || themeLower.includes('creative')) {
+            emoji = '🎨';
+            rolePrefix = 'Creative';
+        } else if (themeLower.includes('crypto') || themeLower.includes('trading') || themeLower.includes('nft')) {
+            emoji = '💰';
+            rolePrefix = 'Trader';
+        }
+        
         return {
             "categories": [
                 {
-                    "name": "📢-welcome-hub",
+                    "name": "📢-info-center",
                     "channels": [
                         { "name": "👋welcome", "type": "text" },
-                        { "name": "📜rules-and-info", "type": "text" },
-                        { "name": "📢announcements", "type": "text" },
-                        { "name": "🎉events", "type": "text" },
-                        { "name": "🤝introductions", "type": "text" }
+                        { "name": "📜server-rules", "type": "text" },
+                        { "name": "📢announcements", "type": "text" }
                     ]
                 },
                 {
-                    "name": "💬-general-chat",
+                    "name": `${emoji}-${themeSlug}-main`,
                     "channels": [
-                        { "name": "💬general-chat", "type": "text" },
-                        { "name": "🎮gaming-chat", "type": "text" },
-                        { "name": "📱tech-talk", "type": "text" },
-                        { "name": "🍕food-and-lifestyle", "type": "text" },
-                        { "name": "😄memes-and-fun", "type": "text" },
-                        { "name": "📰daily-discussion", "type": "text" }
+                        { "name": `${emoji}${themeSlug}-chat`, "type": "text" },
+                        { "name": `🔥${themeSlug}-discussions`, "type": "text" },
+                        { "name": `🎯${themeSlug}-showcase`, "type": "text" },
+                        { "name": `❓${themeSlug}-help`, "type": "text" }
                     ]
                 },
                 {
-                    "name": `🎯-${themeSlug}`,
+                    "name": `${emoji}-${themeSlug}-voice`,
                     "channels": [
-                        { "name": "🎯main-discussion", "type": "text" },
-                        { "name": "🔥hot-topics", "type": "text" },
-                        { "name": "💡ideas-and-feedback", "type": "text" },
-                        { "name": "📚resources-and-guides", "type": "text" },
-                        { "name": "🎨showcase", "type": "text" },
-                        { "name": "❓questions-and-help", "type": "text" },
-                        { "name": "📈progress-updates", "type": "text" }
-                    ]
-                },
-                {
-                    "name": "🎤-voice-channels",
-                    "channels": [
-                        { "name": "🎤general-voice", "type": "voice" },
-                        { "name": "🎵music-lounge", "type": "voice" },
-                        { "name": "🎮gaming-voice", "type": "voice" },
-                        { "name": "📚study-hall", "type": "voice" },
-                        { "name": "💼work-together", "type": "voice" },
-                        { "name": "🎭chill-hangout", "type": "voice" }
-                    ]
-                },
-                {
-                    "name": "🎵-music-zone",
-                    "channels": [
-                        { "name": "🎵music-discussion", "type": "text" },
-                        { "name": "🎶song-recommendations", "type": "text" },
-                        { "name": "🎧listening-party", "type": "voice" },
-                        { "name": "🎤karaoke-night", "type": "voice" },
-                        { "name": "🎼music-production", "type": "text" }
-                    ]
-                },
-                {
-                    "name": "🎮-gaming-hub",
-                    "channels": [
-                        { "name": "🎮game-chat", "type": "text" },
-                        { "name": "🏆tournaments", "type": "text" },
-                        { "name": "🎯team-finder", "type": "text" },
-                        { "name": "🎮gaming-voice-1", "type": "voice" },
-                        { "name": "🎮gaming-voice-2", "type": "voice" },
-                        { "name": "🎮gaming-voice-3", "type": "voice" }
-                    ]
-                },
-                {
-                    "name": "🎨-creative-corner",
-                    "channels": [
-                        { "name": "🎨art-showcase", "type": "text" },
-                        { "name": "📸photography", "type": "text" },
-                        { "name": "✍️writing-corner", "type": "text" },
-                        { "name": "🎬video-content", "type": "text" },
-                        { "name": "🎨creative-voice", "type": "voice" }
-                    ]
-                },
-                {
-                    "name": "🏆-community",
-                    "channels": [
-                        { "name": "🏆achievements", "type": "text" },
-                        { "name": "🎊celebrations", "type": "text" },
-                        { "name": "📝feedback", "type": "text" },
-                        { "name": "🤝partnerships", "type": "text" },
-                        { "name": "📊polls-and-votes", "type": "text" }
+                        { "name": `${emoji}${themeSlug}-hangout`, "type": "voice" },
+                        { "name": `🎤${themeSlug}-discussion`, "type": "voice" },
+                        { "name": `💬casual-voice`, "type": "voice" }
                     ]
                 }
             ],
             "roles": [
                 {
-                    "name": "👑 Owner",
-                    "color": "#FFD700",
-                    "permissions": ["MANAGE_CHANNELS", "MANAGE_ROLES", "KICK_MEMBERS", "BAN_MEMBERS", "MANAGE_MESSAGES"],
-                    "description": "Server owner"
-                },
-                {
-                    "name": "🛡️ Admin",
+                    "name": `${emoji} ${rolePrefix} Expert`,
                     "color": "#E74C3C",
-                    "permissions": ["MANAGE_CHANNELS", "MANAGE_ROLES", "KICK_MEMBERS", "BAN_MEMBERS", "MANAGE_MESSAGES"],
-                    "description": "Server administrator"
-                },
-                {
-                    "name": "⚔️ Moderator",
-                    "color": "#3498DB",
                     "permissions": ["MANAGE_MESSAGES", "KICK_MEMBERS"],
-                    "description": "Server moderator"
+                    "description": `Expert in ${theme}`
                 },
                 {
-                    "name": "🌟 VIP",
+                    "name": `🌟 ${rolePrefix} Enthusiast`,
                     "color": "#9B59B6",
                     "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "VIP member"
+                    "description": `Active ${theme} enthusiast`
                 },
                 {
-                    "name": "🔥 Active Member",
-                    "color": "#E67E22",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "Very active community member"
-                },
-                {
-                    "name": "💎 Supporter",
-                    "color": "#1ABC9C",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "Community supporter"
-                },
-                {
-                    "name": "🎵 Music Lover",
-                    "color": "#FF69B4",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL", "CONNECT", "SPEAK"],
-                    "description": "Music enthusiast"
-                },
-                {
-                    "name": "🎮 Gamer",
-                    "color": "#00FF00",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL", "CONNECT", "SPEAK"],
-                    "description": "Gaming community member"
-                },
-                {
-                    "name": "🎨 Creator",
-                    "color": "#FF1493",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "Content creator"
-                },
-                {
-                    "name": "👥 Member",
+                    "name": `${emoji} ${rolePrefix} Member`,
                     "color": "#95A5A6",
                     "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "Regular server member"
-                },
-                {
-                    "name": "🆕 Newcomer",
-                    "color": "#BDC3C7",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "New to the community"
+                    "description": `Member interested in ${theme}`
                 }
             ]
         };
