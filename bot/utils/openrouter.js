@@ -33,24 +33,28 @@ Return ONLY a valid JSON object:
 }
 
 Guidelines (use your best judgment):
-- Create as many categories and channels as YOU think makes sense for this theme
+- Create a MAXIMUM of 20 channels total (across all categories)
 - Use relevant emojis at the start of channel names (🎵, 🎤, 📢, 💬, 🎯, 🔥, ⭐, 🎨, 📱, 🎮, etc.)
 - Discord-friendly names (lowercase, hyphens for spaces)
 - Create specialized channels that are unique and perfect for this specific theme
 - Design a role hierarchy that makes sense for the community
 - Valid permissions: MANAGE_CHANNELS, MANAGE_ROLES, MANAGE_MESSAGES, KICK_MEMBERS, BAN_MEMBERS, SEND_MESSAGES, VIEW_CHANNEL, CONNECT, SPEAK
 - Make it feel like the ultimate destination for this theme's community
+- Focus on quality over quantity - make each channel purposeful and engaging
 
-Be creative! Design YOUR vision of the perfect server for this theme.
+Be creative! Design YOUR vision of the perfect server for this theme (max 20 channels).
 
 Return only the JSON object.`;
 
         try {
+            console.log('🤖 Calling OpenRouter API for theme:', theme);
+            console.log('🔑 API Key present:', !!this.apiKey);
+            
             const response = await axios.post(`${this.baseURL}/chat/completions`, {
                 model: "anthropic/claude-3.5-sonnet",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.7,
-                max_tokens: 2500
+                temperature: 0.8,
+                max_tokens: 4000
             }, {
                 headers: {
                     'Authorization': `Bearer ${this.apiKey}`,
@@ -60,11 +64,17 @@ Return only the JSON object.`;
                 }
             });
 
+            console.log('✅ OpenRouter API Response received');
+            console.log('📊 Response status:', response.status);
+
             if (!response.data?.choices?.[0]?.message?.content) {
-                throw new Error('Invalid API response');
+                console.error('❌ Invalid API response structure:', response.data);
+                throw new Error('Invalid API response structure');
             }
 
             const content = response.data.choices[0].message.content.trim();
+            console.log('📝 Raw AI response length:', content.length);
+            console.log('📝 Raw AI response preview:', content.substring(0, 200) + '...');
             
             // Clean and parse JSON
             let jsonStr = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
@@ -73,17 +83,30 @@ Return only the JSON object.`;
                 jsonStr = jsonMatch[0];
             }
             
+            console.log('🔧 Cleaned JSON length:', jsonStr.length);
+            
             const parsedStructure = JSON.parse(jsonStr);
             
             if (!parsedStructure.categories || !Array.isArray(parsedStructure.categories) ||
                 !parsedStructure.roles || !Array.isArray(parsedStructure.roles)) {
+                console.error('❌ Invalid structure format:', parsedStructure);
                 throw new Error('Invalid structure format');
             }
+            
+            const totalChannels = parsedStructure.categories.reduce((acc, cat) => acc + (cat.channels?.length || 0), 0);
+            console.log('🎯 Generated structure:');
+            console.log(`   📁 Categories: ${parsedStructure.categories.length}`);
+            console.log(`   📋 Channels: ${totalChannels}`);
+            console.log(`   👥 Roles: ${parsedStructure.roles.length}`);
             
             return parsedStructure;
             
         } catch (error) {
-            console.error('OpenRouter API Error:', error.message);
+            console.error('💥 OpenRouter API Error Details:');
+            console.error('   Error message:', error.message);
+            console.error('   Response status:', error.response?.status);
+            console.error('   Response data:', error.response?.data);
+            console.log('⚠️  Falling back to default structure');
             return this.getFallbackStructure(theme);
         }
     }
