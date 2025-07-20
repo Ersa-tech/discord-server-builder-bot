@@ -7,7 +7,7 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const prompt = `Create a Discord server structure for the theme: "${theme}".
+        const prompt = `Create an EPIC and COMPREHENSIVE Discord server structure for the theme: "${theme}".
 
 Return ONLY a valid JSON object:
 {
@@ -15,8 +15,8 @@ Return ONLY a valid JSON object:
     {
       "name": "category-name",
       "channels": [
-        {"name": "channel-name", "type": "text"},
-        {"name": "voice-channel", "type": "voice"}
+        {"name": "🎯channel-name", "type": "text"},
+        {"name": "🎤voice-channel", "type": "voice"}
       ]
     }
   ],
@@ -31,11 +31,14 @@ Return ONLY a valid JSON object:
 }
 
 Requirements:
-- 3-5 categories maximum
-- 15-25 channels total (mix of text and voice)
-- 5-10 roles with appropriate permissions
+- 6-12 categories (make it BIG and comprehensive!)
+- 40-80 channels total (mix of text and voice) - GO BIG!
+- 8-15 roles with detailed hierarchy and appropriate permissions
+- Use relevant emojis at the start of channel names (🎵, 🎤, 📢, 💬, 🎯, 🔥, ⭐, 🎨, 📱, 🎮, etc.)
 - Discord-friendly names (lowercase, hyphens for spaces)
+- Create specialized channels for the theme
 - Valid permissions: MANAGE_CHANNELS, MANAGE_ROLES, MANAGE_MESSAGES, KICK_MEMBERS, BAN_MEMBERS, SEND_MESSAGES, VIEW_CHANNEL, CONNECT, SPEAK
+- Make it feel like a thriving, active community space
 
 Return only the JSON object.`;
 
@@ -83,51 +86,161 @@ Return only the JSON object.`;
     }
 
     getFallbackStructure(theme) {
+        const themeSlug = theme.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
         return {
             "categories": [
                 {
-                    "name": "welcome-and-info",
+                    "name": "📢-welcome-hub",
                     "channels": [
-                        { "name": "welcome", "type": "text" },
-                        { "name": "rules", "type": "text" },
-                        { "name": "announcements", "type": "text" }
+                        { "name": "👋welcome", "type": "text" },
+                        { "name": "📜rules-and-info", "type": "text" },
+                        { "name": "📢announcements", "type": "text" },
+                        { "name": "🎉events", "type": "text" },
+                        { "name": "🤝introductions", "type": "text" }
                     ]
                 },
                 {
-                    "name": "general-discussion",
+                    "name": "💬-general-chat",
                     "channels": [
-                        { "name": "general-chat", "type": "text" },
-                        { "name": "general-voice", "type": "voice" },
-                        { "name": "music-lounge", "type": "voice" }
+                        { "name": "💬general-chat", "type": "text" },
+                        { "name": "🎮gaming-chat", "type": "text" },
+                        { "name": "📱tech-talk", "type": "text" },
+                        { "name": "🍕food-and-lifestyle", "type": "text" },
+                        { "name": "😄memes-and-fun", "type": "text" },
+                        { "name": "📰daily-discussion", "type": "text" }
                     ]
                 },
                 {
-                    "name": theme.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-'),
+                    "name": `🎯-${themeSlug}`,
                     "channels": [
-                        { "name": "topic-discussion", "type": "text" },
-                        { "name": "topic-voice", "type": "voice" },
-                        { "name": "resources", "type": "text" }
+                        { "name": "🎯main-discussion", "type": "text" },
+                        { "name": "🔥hot-topics", "type": "text" },
+                        { "name": "💡ideas-and-feedback", "type": "text" },
+                        { "name": "📚resources-and-guides", "type": "text" },
+                        { "name": "🎨showcase", "type": "text" },
+                        { "name": "❓questions-and-help", "type": "text" },
+                        { "name": "📈progress-updates", "type": "text" }
+                    ]
+                },
+                {
+                    "name": "🎤-voice-channels",
+                    "channels": [
+                        { "name": "🎤general-voice", "type": "voice" },
+                        { "name": "🎵music-lounge", "type": "voice" },
+                        { "name": "🎮gaming-voice", "type": "voice" },
+                        { "name": "📚study-hall", "type": "voice" },
+                        { "name": "💼work-together", "type": "voice" },
+                        { "name": "🎭chill-hangout", "type": "voice" }
+                    ]
+                },
+                {
+                    "name": "🎵-music-zone",
+                    "channels": [
+                        { "name": "🎵music-discussion", "type": "text" },
+                        { "name": "🎶song-recommendations", "type": "text" },
+                        { "name": "🎧listening-party", "type": "voice" },
+                        { "name": "🎤karaoke-night", "type": "voice" },
+                        { "name": "🎼music-production", "type": "text" }
+                    ]
+                },
+                {
+                    "name": "🎮-gaming-hub",
+                    "channels": [
+                        { "name": "🎮game-chat", "type": "text" },
+                        { "name": "🏆tournaments", "type": "text" },
+                        { "name": "🎯team-finder", "type": "text" },
+                        { "name": "🎮gaming-voice-1", "type": "voice" },
+                        { "name": "🎮gaming-voice-2", "type": "voice" },
+                        { "name": "🎮gaming-voice-3", "type": "voice" }
+                    ]
+                },
+                {
+                    "name": "🎨-creative-corner",
+                    "channels": [
+                        { "name": "🎨art-showcase", "type": "text" },
+                        { "name": "📸photography", "type": "text" },
+                        { "name": "✍️writing-corner", "type": "text" },
+                        { "name": "🎬video-content", "type": "text" },
+                        { "name": "🎨creative-voice", "type": "voice" }
+                    ]
+                },
+                {
+                    "name": "🏆-community",
+                    "channels": [
+                        { "name": "🏆achievements", "type": "text" },
+                        { "name": "🎊celebrations", "type": "text" },
+                        { "name": "📝feedback", "type": "text" },
+                        { "name": "🤝partnerships", "type": "text" },
+                        { "name": "📊polls-and-votes", "type": "text" }
                     ]
                 }
             ],
             "roles": [
                 {
-                    "name": "Member",
-                    "color": "#95A5A6",
-                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
-                    "description": "Regular server member"
+                    "name": "👑 Owner",
+                    "color": "#FFD700",
+                    "permissions": ["MANAGE_CHANNELS", "MANAGE_ROLES", "KICK_MEMBERS", "BAN_MEMBERS", "MANAGE_MESSAGES"],
+                    "description": "Server owner"
                 },
                 {
-                    "name": "Moderator",
+                    "name": "🛡️ Admin",
+                    "color": "#E74C3C",
+                    "permissions": ["MANAGE_CHANNELS", "MANAGE_ROLES", "KICK_MEMBERS", "BAN_MEMBERS", "MANAGE_MESSAGES"],
+                    "description": "Server administrator"
+                },
+                {
+                    "name": "⚔️ Moderator",
                     "color": "#3498DB",
                     "permissions": ["MANAGE_MESSAGES", "KICK_MEMBERS"],
                     "description": "Server moderator"
                 },
                 {
-                    "name": "Admin",
-                    "color": "#E74C3C",
-                    "permissions": ["MANAGE_CHANNELS", "MANAGE_ROLES", "KICK_MEMBERS", "BAN_MEMBERS"],
-                    "description": "Server administrator"
+                    "name": "🌟 VIP",
+                    "color": "#9B59B6",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
+                    "description": "VIP member"
+                },
+                {
+                    "name": "🔥 Active Member",
+                    "color": "#E67E22",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
+                    "description": "Very active community member"
+                },
+                {
+                    "name": "💎 Supporter",
+                    "color": "#1ABC9C",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
+                    "description": "Community supporter"
+                },
+                {
+                    "name": "🎵 Music Lover",
+                    "color": "#FF69B4",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL", "CONNECT", "SPEAK"],
+                    "description": "Music enthusiast"
+                },
+                {
+                    "name": "🎮 Gamer",
+                    "color": "#00FF00",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL", "CONNECT", "SPEAK"],
+                    "description": "Gaming community member"
+                },
+                {
+                    "name": "🎨 Creator",
+                    "color": "#FF1493",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
+                    "description": "Content creator"
+                },
+                {
+                    "name": "👥 Member",
+                    "color": "#95A5A6",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
+                    "description": "Regular server member"
+                },
+                {
+                    "name": "🆕 Newcomer",
+                    "color": "#BDC3C7",
+                    "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"],
+                    "description": "New to the community"
                 }
             ]
         };
