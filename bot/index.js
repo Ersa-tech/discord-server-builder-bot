@@ -1,8 +1,32 @@
 const { Client, GatewayIntentBits, Collection, REST, Routes, ActivityType } = require('discord.js');
+const express = require('express');
 require('dotenv').config();
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds]
+});
+
+// Create Express app for Render's port binding requirement
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Simple health check endpoint
+app.get('/', (req, res) => {
+    res.json({
+        status: 'online',
+        bot: client.user ? client.user.tag : 'Not logged in',
+        servers: client.guilds ? client.guilds.cache.size : 0,
+        uptime: process.uptime()
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+// Start the Express server
+app.listen(PORT, () => {
+    console.log(`Health server running on port ${PORT}`);
 });
 
 client.commands = new Collection();
