@@ -43,10 +43,10 @@ Limits: 20 channels max, 1-3 voice channels. Use emojis. Make it themed and uniq
             console.log(`🤖 Generating structure for theme:`, theme);
             
             const response = await axios.post(`${this.baseURL}/chat/completions`, {
-                model: "meta-llama/llama-3.1-405b-instruct",
+                model: "anthropic/claude-3.5-haiku",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.85,
-                max_tokens: 2500
+                temperature: 0.7,
+                max_tokens: 1800
             }, {
                 headers: {
                     'Authorization': `Bearer ${this.apiKey}`,
