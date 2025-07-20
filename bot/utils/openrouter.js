@@ -7,100 +7,130 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const prompt = `Create a Discord server structure for the theme: "${theme}".
+        const models = [
+            "meta-llama/llama-3.1-405b-instruct",
+            "anthropic/claude-3.5-sonnet", 
+            "openai/gpt-4o",
+            "google/gemini-pro-1.5"
+        ];
 
-Return a JSON object with categories, channels, and roles:
+        const prompt = `Design a creative Discord server for: "${theme}"
+
+Create categories, channels, and roles that perfectly match this theme. Be imaginative and specific to the theme.
+
+JSON format:
 {
   "categories": [
     {
-      "name": "category-name",
+      "name": "category-name", 
       "channels": [
         {"name": "🎯channel-name", "type": "text"},
-        {"name": "🎤voice-channel", "type": "voice"}
+        {"name": "🎤voice-name", "type": "voice"}
       ]
     }
   ],
   "roles": [
     {
       "name": "Role Name",
-      "color": "#FF5733",
+      "color": "#hex",
       "permissions": ["SEND_MESSAGES", "VIEW_CHANNEL"]
     }
   ]
 }
 
-Requirements:
-- Maximum 20 channels total
-- Maximum 5 voice channels
-- Use emojis in channel names
-- Discord-friendly names (lowercase, hyphens)
-- Valid permissions: MANAGE_CHANNELS, MANAGE_ROLES, MANAGE_MESSAGES, KICK_MEMBERS, BAN_MEMBERS, SEND_MESSAGES, VIEW_CHANNEL, CONNECT, SPEAK
+Limits: 20 channels max, 5 voice max. Use emojis. Make it themed and unique!`;
 
-Return only the JSON object.`;
+        for (const model of models) {
+            try {
+                console.log(`🤖 Trying ${model} for theme:`, theme);
+                
+                const response = await axios.post(`${this.baseURL}/chat/completions`, {
+                    model: model,
+                    messages: [{ role: "user", content: prompt }],
+                    temperature: 0.85,
+                    max_tokens: 3000
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': 'https://coinbound.io',
+                        'X-Title': 'Discord Server Builder Bot'
+                    }
+                });
 
-        try {
-            console.log('🤖 Calling OpenRouter API for theme:', theme);
-            console.log('🔑 API Key present:', !!this.apiKey);
-            
-            const response = await axios.post(`${this.baseURL}/chat/completions`, {
-                model: "anthropic/claude-3.5-sonnet",
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.8,
-                max_tokens: 4000
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                    'Content-Type': 'application/json',
-                    'HTTP-Referer': 'https://coinbound.io',
-                    'X-Title': 'Discord Server Builder Bot'
+                if (!response.data?.choices?.[0]?.message?.content) {
+                    throw new Error('Invalid API response structure');
                 }
-            });
 
-            console.log('✅ OpenRouter API Response received');
-            console.log('📊 Response status:', response.status);
-
-            if (!response.data?.choices?.[0]?.message?.content) {
-                console.error('❌ Invalid API response structure:', response.data);
-                throw new Error('Invalid API response structure');
+                const content = response.data.choices[0].message.content.trim();
+                console.log(`✅ ${model} responded with ${content.length} chars`);
+                
+                // Clean and parse JSON
+                let jsonStr = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+                const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    jsonStr = jsonMatch[0];
+                }
+                
+                const parsedStructure = JSON.parse(jsonStr);
+                
+                // Validate structure
+                if (!parsedStructure.categories || !Array.isArray(parsedStructure.categories) ||
+                    !parsedStructure.roles || !Array.isArray(parsedStructure.roles)) {
+                    throw new Error('Invalid structure format');
+                }
+                
+                // Enforce limits
+                let totalChannels = 0;
+                let voiceChannels = 0;
+                
+                for (const category of parsedStructure.categories) {
+                    if (category.channels) {
+                        totalChannels += category.channels.length;
+                        voiceChannels += category.channels.filter(ch => ch.type === 'voice').length;
+                    }
+                }
+                
+                if (totalChannels > 20) {
+                    // Trim channels to fit limit
+                    let channelsToRemove = totalChannels - 20;
+                    for (const category of parsedStructure.categories) {
+                        if (channelsToRemove <= 0) break;
+                        const toRemove = Math.min(channelsToRemove, category.channels.length - 1);
+                        category.channels.splice(-toRemove);
+                        channelsToRemove -= toRemove;
+                    }
+                }
+                
+                if (voiceChannels > 5) {
+                    // Trim voice channels
+                    let voiceToRemove = voiceChannels - 5;
+                    for (const category of parsedStructure.categories) {
+                        if (voiceToRemove <= 0) break;
+                        for (let i = category.channels.length - 1; i >= 0 && voiceToRemove > 0; i--) {
+                            if (category.channels[i].type === 'voice') {
+                                category.channels.splice(i, 1);
+                                voiceToRemove--;
+                            }
+                        }
+                    }
+                }
+                
+                console.log(`🎯 ${model} generated valid structure:`, 
+                    `${parsedStructure.categories.length} categories,`, 
+                    `${parsedStructure.categories.reduce((acc, cat) => acc + cat.channels.length, 0)} channels,`,
+                    `${parsedStructure.roles.length} roles`);
+                
+                return parsedStructure;
+                
+            } catch (error) {
+                console.error(`❌ ${model} failed:`, error.message);
+                continue;
             }
-
-            const content = response.data.choices[0].message.content.trim();
-            console.log('📝 Raw AI response length:', content.length);
-            console.log('📝 Raw AI response preview:', content.substring(0, 200) + '...');
-            
-            // Clean and parse JSON
-            let jsonStr = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-            const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                jsonStr = jsonMatch[0];
-            }
-            
-            console.log('🔧 Cleaned JSON length:', jsonStr.length);
-            
-            const parsedStructure = JSON.parse(jsonStr);
-            
-            if (!parsedStructure.categories || !Array.isArray(parsedStructure.categories) ||
-                !parsedStructure.roles || !Array.isArray(parsedStructure.roles)) {
-                console.error('❌ Invalid structure format:', parsedStructure);
-                throw new Error('Invalid structure format');
-            }
-            
-            const totalChannels = parsedStructure.categories.reduce((acc, cat) => acc + (cat.channels?.length || 0), 0);
-            console.log('🎯 Generated structure:');
-            console.log(`   📁 Categories: ${parsedStructure.categories.length}`);
-            console.log(`   📋 Channels: ${totalChannels}`);
-            console.log(`   👥 Roles: ${parsedStructure.roles.length}`);
-            
-            return parsedStructure;
-            
-        } catch (error) {
-            console.error('💥 OpenRouter API Error Details:');
-            console.error('   Error message:', error.message);
-            console.error('   Response status:', error.response?.status);
-            console.error('   Response data:', error.response?.data);
-            console.log('⚠️  Falling back to default structure');
-            return this.getFallbackStructure(theme);
         }
+        
+        console.log('⚠️ All models failed, using fallback');
+        return this.getFallbackStructure(theme);
     }
 
     getFallbackStructure(theme) {
