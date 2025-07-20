@@ -13,7 +13,14 @@ class OpenRouterClient {
     }
 
     async generateServerStructure(theme) {
-        const prompt = `Design a creative Discord server for: "${theme}"
+        try {
+            console.log(`🤖 Generating structure for theme:`, theme);
+            
+            // Step 1: Enhance the user's prompt using fast LLM
+            const enhancedTheme = await this.enhanceTheme(theme);
+            console.log(`✨ Enhanced theme:`, enhancedTheme);
+            
+            const prompt = `Design a creative Discord server for: "${enhancedTheme}"
 
 Create categories, channels, and roles that perfectly match this theme. Be imaginative and specific to the theme.
 
@@ -39,8 +46,7 @@ JSON format:
 
 Limits: 20 channels max, 1-3 voice channels. Use emojis. Make it themed and unique!`;
 
-        try {
-            console.log(`🤖 Generating structure for theme:`, theme);
+            // Step 2: Generate server structure using enhanced prompt
             
             const response = await axios.post(`${this.baseURL}/chat/completions`, {
                 model: "anthropic/claude-3.5-haiku",
@@ -138,6 +144,47 @@ Limits: 20 channels max, 1-3 voice channels. Use emojis. Make it themed and uniq
             console.log('⚠️ Using fallback structure');
             return this.getFallbackStructure(theme);
         }
+    }
+
+    async enhanceTheme(theme) {
+        try {
+            const enhancePrompt = `Rewrite this Discord server theme to be more specific and detailed: "${theme}"
+
+Make it clear what type of community this is, what activities they do, and what channels they might need.
+
+Examples:
+"gaming" → "PC gaming community focused on competitive FPS games, streaming, and tournament participation"
+"music" → "hip-hop music production community for beat makers, rappers, and audio engineers to collaborate"
+"anime" → "anime discussion community for seasonal anime reviews, manga discussions, and fan art sharing"
+
+Rewrite: "${theme}"
+Enhanced theme:`;
+
+            const response = await axios.post(`${this.baseURL}/chat/completions`, {
+                model: "openai/gpt-3.5-turbo",
+                messages: [{ role: "user", content: enhancePrompt }],
+                temperature: 0.3,
+                max_tokens: 150
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': 'https://coinbound.io',
+                    'X-Title': 'Discord Server Builder Bot'
+                }
+            });
+
+            if (response.data?.choices?.[0]?.message?.content) {
+                const enhanced = response.data.choices[0].message.content.trim()
+                    .replace(/^Enhanced theme:\s*/i, '')
+                    .replace(/^.*?:\s*/i, '');
+                return enhanced || theme;
+            }
+        } catch (error) {
+            console.log(`⚠️ Theme enhancement failed, using original: ${error.message}`);
+        }
+        
+        return theme; // Fallback to original if enhancement fails
     }
 
     getFallbackStructure(theme) {
