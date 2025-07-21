@@ -1,21 +1,42 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require('discord.js');
 const ServerBuilder = require('../utils/serverBuilder');
+
+// Simple in-memory cooldown system (30 seconds for nuke command)
+const cooldowns = new Map();
+const COOLDOWN_TIME = 30 * 1000; // 30 seconds
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('nuke')
         .setDescription('Delete all channels and roles except general, then create basic roles'),
-    
+
     async execute(interaction) {
+        const userId = interaction.user.id;
+
         try {
+            // Check cooldown
+            const lastUsed = cooldowns.get(userId);
+            if (lastUsed && (Date.now() - lastUsed) < COOLDOWN_TIME) {
+                const remainingTime = Math.ceil((COOLDOWN_TIME - (Date.now() - lastUsed)) / 1000);
+                const cooldownEmbed = new EmbedBuilder()
+                    .setColor(0xFFA500)
+                    .setTitle('Command Cooldown')
+                    .setDescription(`Please wait ${remainingTime} more seconds before using /nuke again.`)
+                    .setTimestamp()
+                    .setFooter({ text: 'This prevents accidental server destruction' });
+
+                console.log(`⏰ [Nuke Cooldown] User ${interaction.user.tag} blocked for ${remainingTime}s`);
+                return await interaction.reply({ embeds: [cooldownEmbed], flags: MessageFlags.Ephemeral });
+            }
+
             if (!interaction.member.permissions.has('Administrator')) {
                 const errorEmbed = new EmbedBuilder()
                     .setColor(0xFF0000)
                     .setTitle('Permission Denied')
                     .setDescription('You need Administrator permissions to use this command.')
                     .setTimestamp();
-                
-                return await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+
+                return await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
             }
 
             const confirmEmbed = new EmbedBuilder()
@@ -37,10 +58,10 @@ module.exports = {
                         .setStyle(ButtonStyle.Secondary)
                 );
 
-            const response = await interaction.reply({ 
-                embeds: [confirmEmbed], 
+            const response = await interaction.reply({
+                embeds: [confirmEmbed],
                 components: [confirmRow],
-                ephemeral: true 
+                flags: MessageFlags.Ephemeral
             });
 
             const collector = response.createMessageComponentCollector({ time: 30000 });
@@ -48,9 +69,9 @@ module.exports = {
             collector.on('collect', async (buttonInteraction) => {
                 try {
                     if (buttonInteraction.user.id !== interaction.user.id) {
-                        return await buttonInteraction.reply({ 
-                            content: 'Only the command user can confirm this action.', 
-                            ephemeral: true 
+                        return await buttonInteraction.reply({
+                            content: 'Only the command user can confirm this action.',
+                            flags: MessageFlags.Ephemeral
                         });
                     }
 
@@ -61,15 +82,19 @@ module.exports = {
                             .setDescription('Server nuke has been cancelled. No changes were made.')
                             .setTimestamp();
 
-                        await buttonInteraction.update({ 
-                            embeds: [cancelEmbed], 
-                            components: [] 
+                        await buttonInteraction.update({
+                            embeds: [cancelEmbed],
+                            components: []
                         });
                         collector.stop();
                         return;
                     }
 
                     if (buttonInteraction.customId === 'nuke_confirm') {
+                        // Set cooldown when nuke is confirmed
+                        cooldowns.set(userId, Date.now());
+                        console.log(`💥 [Nuke Confirmed] User ${interaction.user.tag} starting server nuke`);
+                        
                         await buttonInteraction.deferUpdate();
 
                         const processingEmbed = new EmbedBuilder()
@@ -78,9 +103,9 @@ module.exports = {
                             .setDescription('Please wait while I delete channels and roles...')
                             .setTimestamp();
 
-                        await buttonInteraction.editReply({ 
-                            embeds: [processingEmbed], 
-                            components: [] 
+                        await buttonInteraction.editReply({
+                            embeds: [processingEmbed],
+                            components: []
                         });
 
                         const serverBuilder = new ServerBuilder(interaction.guild);
@@ -111,7 +136,7 @@ module.exports = {
                     }
                 } catch (error) {
                     console.error('Button interaction error:', error.message);
-                    
+
                     const errorEmbed = new EmbedBuilder()
                         .setColor(0xFF0000)
                         .setTitle('Nuke Failed')
@@ -136,9 +161,9 @@ module.exports = {
                             .setDescription('Nuke confirmation timed out. No changes were made.')
                             .setTimestamp();
 
-                        await interaction.editReply({ 
-                            embeds: [timeoutEmbed], 
-                            components: [] 
+                        await interaction.editReply({
+                            embeds: [timeoutEmbed],
+                            components: []
                         });
                     } catch (error) {
                         console.log('Timeout handler: Interaction already handled');
@@ -148,7 +173,7 @@ module.exports = {
 
         } catch (error) {
             console.error('Nuke command error:', error.message);
-            
+
             const errorEmbed = new EmbedBuilder()
                 .setColor(0xFF0000)
                 .setTitle('Command Failed')
@@ -156,7 +181,7 @@ module.exports = {
                 .setTimestamp();
 
             try {
-                await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+                await interaction.reply({ embeds: [errorEmbed], flags: MessageFlags.Ephemeral });
             } catch (replyError) {
                 console.error('Failed to send error reply:', replyError.message);
             }
